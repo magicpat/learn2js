@@ -1,0 +1,13 @@
+{
+  "packages": {
+    "router": {},
+    "iron-router": {},
+    "roles": {},
+    "less-bootstrap-3": {},
+    "font-awesome": {},
+    "iron-router-progress": {},
+    "accounts-ui-bootstrap-3": {},
+    "npm": {},
+    "jquery-validation": {}
+  }
+}

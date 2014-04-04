@@ -1,0 +1,31 @@
+<template name="register">
+    <div class="panel panel-default signinbox">
+        <div class="panel-body">
+            <form id="register-form" role="form">
+                <h2>Sign up!</h2>
+                
+                <div class="form-group">
+                    <div class="input-group"> <span class="input-group-addon"><i class="fa fa-envelope-o fa-fw"></i></span>
+                        <input type="email" id="register-email" name="email" class="form-control" placeholder="Email address" required autofocus>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group"> <span class="input-group-addon"><i class="fa fa-user fa-fw"></i></span>
+                        <input type="text" id="register-username" name="username" class="form-control" placeholder="username" title="Username already exists">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group"> <span class="input-group-addon"><i class="fa fa-key fa-fw"></i></span>
+                        <input type="password" id="register-password" name="password" class="form-control" placeholder="Password" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group"> <span class="input-group-addon"><i class="fa fa-mail-forward fa-fw"></i></span>
+                        <input type="password" id="register-password-repeat" name="password_repeat" class="form-control" placeholder="Repeat Password" required>
+                    </div>
+                </div>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
+            </form>
+        </div>
+    </div>
+</template>
