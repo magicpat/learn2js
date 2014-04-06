@@ -1,9 +1,38 @@
 body { padding-top: 50px; }
+
+.navbar > .container { 
+    width:auto; 
+    padding: 0px 30px 0px 30px;    
+}
+
+.navbar-header{
+}
+.register-link {
+    color: @brand-danger !important;
+    font-weight: bolder;
+}
+
 @media screen and (max-width: 768px) {
     body { padding-top: 0px; }
 }
 
-.register-link {
-    color: @brand-danger !important;
-    font-weight: bolder;
+
+
+/* SIDEBARLAYOUT CSS */
+#wrapper {
+    padding-left: 300px;
+}
+
+#sidebar-wrapper {
+    margin-left: -230px;
+    left: 250px;
+    width: 250px;
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+#page-content-wrapper {
+    width: 100%;
 }

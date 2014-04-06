@@ -5,6 +5,33 @@
     </div>
 </template>
 
+<template name="sidebarlayoutBAK">
+    {{> navigation}}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3" id="sidebar">
+                {{> yield region='sidebar'}}
+            </div>
+            <div class="col-md-9">
+                {{> yield}}
+            </div>
+        </div> 
+    </div>
+</template>
+
+<template name="sidebarlayout">
+<div id="wrapper">
+   <div id="sidebar-wrapper">
+       {{> yield region='sidebar'}} 
+   </div> 
+   <div id="page-content-wrapper">
+        {{> yield}}
+   </div>
+</div>
+{{> navigation}}
+
+</template>
+
 <template name="navigation">
     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container">
@@ -18,22 +45,7 @@
 
                 <ul class="nav navbar-nav navbar-right">
                     {{#if currentUser}}
-                    <li>
-                        <div class="btn-group">
-                            <a class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i> {{currentUser.username}}</a> 
-                            
-                            <a class="btn btn-default navbar-btn " data-toggle="dropdown" href="#">    
-                                <i class="fa fa-sort-asc"></i>
-                            </a>
-
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a></li>
-                                <li><a href="#"><i class="fa fa-pencil fa-fw"></i> Account Settings</a></li>
-                                <li class="divider"></li>
-                                <li><a href="#" id="logout-link"><i class="fa fa-power-off fa-fw"></i> Logout</a></li>
-                            </ul>
-                        </div>
-                    </li>
+                        <li>{{> userDropdown}}</li>
                     {{else}}
                     <li><a href="{{pathFor 'register'}}" class="register-link">Register</a></li>
                     <li><a href="{{pathFor 'login'}}">Login</a></li>
@@ -42,6 +54,31 @@
             </div>
         </div>
     </nav>
+</template>
+
+<template name="userDropdown">
+    <div class="btn-group">
+        <a class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i> {{currentUser.username}}</a> 
+
+        <a class="btn btn-default navbar-btn " data-toggle="dropdown" href="#">    
+            <i class="fa fa-sort-asc"></i>
+        </a>
+
+        <ul class="dropdown-menu" role="menu">
+            {{#if isInRole 'admin'}}
+            <li><a href="{{pathFor 'admin'}}"><i class="fa fa-dashboard fa-fw"></i> Administration</a></li>
+            {{/if}}
+            {{#if isInRole 'teacher'}}
+            <li><a href="{{pathFor 'courses'}}"><i class="fa fa-dashboard fa-fw"></i> Your Courses</a></li>
+            {{/if}}
+            {{#if isInRole 'student'}}
+            <li><a href="{{pathFor 'dashboard'}}"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a></li>
+            {{/if}}
+            <li><a href="#"><i class="fa fa-pencil fa-fw"></i> Account Settings</a></li>
+            <li class="divider"></li>
+            <li><a href="#" id="logout-link"><i class="fa fa-power-off fa-fw"></i> Logout</a></li>
+        </ul>
+    </div>
 </template>
 
 <template name="footer">

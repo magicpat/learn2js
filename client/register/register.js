@@ -2,55 +2,69 @@
 
 "use strict";
 
-function validateInput(username, email, password, passwordRepeat){
-    var errors = [];
-   
-    Meteor.call("usernameExists", username, function(err, result){
-                          
-        console.log(result);
-    });
-
-    if(Meteor.call("usernameExists", username)){
-        errors.push({ message : "Username already in use"});
-    }
-
-    if(Meteor.call("emailExists", email)){
-        errors.push({ message : "Email already in use"});
-    }
-    
-    if(password !== passwordRepeat){
-       errors.push({ message : "Passwords do not match"});
-    }
-
-    Session.set("errors", errors);
-
-    return errors;
+function highlightError(element, errorClass, validClass){
+    $(element).closest('.form-group')
+              .removeClass(validClass)
+              .addClass(errorClass);
 }
+
+function highlightSuccess(element, errorClass, validClass){
+    var $element = $(element);
+    $element.closest('.form-group')
+              .removeClass(errorClass)
+              .addClass(validClass);
+
+    $element.tooltip('destroy');
+}
+
+function placeError(element, errText){
+    //Initialize the tooltip to show the error
+    $(element).tooltip({
+        title : errText,
+        placement : "top",
+        trigger : "focus"
+    });
+}
+
+var validClass = "has-success";
+var errorClass = "has-error";
+
 
 Template.register.events({
     "submit #register-form" : function(e, tpl){
         e.preventDefault();
-        var email = tpl.find("#register-email").value;
-        var username = tpl.find("#register-username").value;
-        var password = tpl.find("#register-password").value;
-        var passwordRepeat = tpl.find("#register-password-repeat").value;
 
-        if(password !== passwordRepeat){
-            return new Meteor.Error(201, "Passwords do not match!");
-        }
+        //From here, jquery-validation validated what it was capable of.
+        //Now, username and email should be checked for existence
+        var email = tpl.find("#register-email");
+        var username = tpl.find("#register-username");
+        var password = tpl.find("#register-password");
+        var passwordRepeat = tpl.find("#register-password-repeat");
+
 
         var params = {
-            username : username,
-            email : email,
-            password : password
+            username : username.value,
+            email : email.value,
+            password : password.value
         };
 
         Accounts.createUser(params, function(err){
             if(err){
-                throw new Meteor.Error(400, "User registration failed");
+                switch(err.reason){
+                    case "Username already exists.":
+                        placeError(username, err.reason);
+                        highlightError(username, errorClass, validClass);
+                        break;
+                    case "Email already exists.":
+                        placeError(email, err.reason);
+                        highlightError(email, errorClass, validClass);
+                        break;
+                    default:
+                        throw err;
+                }
             }
             else{
-                Router.go("home");
+                Router.go("dashboard");
             }
         });
     }
@@ -58,18 +72,20 @@ Template.register.events({
 
 //Initialize tooltips etc.
 Template.register.rendered = function(){
+    
     //Enable parsley on the right form
     $("#register-form").validate({
         ignore: '*:not([name])',
-        errorClass : "has-error",
-        validClass : "has-success",
+        errorClass : errorClass,
+        validClass : validClass,
         rules : {
             email: {
                 required : true,
                 email : true
             },
             username : {
-                required : true
+                required : true,
+                minlength : 3
             },
             password : {
                 required : true,
@@ -85,6 +101,7 @@ Template.register.rendered = function(){
             },
             username : {
                 required : "Username required",
+                minlength : "Username has to be at least 3 characters long"
             },
             password : {
                 required : "Password required",
@@ -94,25 +111,13 @@ Template.register.rendered = function(){
             }
         },
         highlight: function(element, errorClass, validClass){
-            $(element).closest('.form-group')
-                      .removeClass(validClass)
-                      .addClass(errorClass);
-
+            highlightError(element, errorClass, validClass);
         },
         unhighlight: function(element, errorClass, validClass){
-            $(element).closest('.form-group')
-                      .removeClass(errorClass)
-                      .addClass(validClass);
-
-            $(element).tooltip('destroy');
+            highlightSuccess(element, errorClass, validClass);
         },
         errorPlacement: function(error, element){
-            //Initialize the tooltip to show the error
-            $(element).tooltip({
-                title : error.text(),
-                placement : "top",
-                trigger : "focus"
-            });
+            placeError(element, error.text());
         }
     });
 };

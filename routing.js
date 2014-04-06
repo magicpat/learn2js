@@ -10,31 +10,40 @@ Router.map(function(){
     this.route("home", {path : "/"});
     this.route("login");
     this.route("register");
-    this.route("dashboard");
-    this.route("admin");
-    this.route("courses", {
-        "onBeforeAction" : function(){
-            console.log("courses onBeforeAction called");
+    this.route("dashboard",{
+        layoutTemplate: 'sidebarlayout',
+        yieldTemplates: {
+            'dashboardSidebar': {to: 'sidebar'},
         }
     });
+    this.route("myaccount");
+    this.route("admin", {
+        layoutTemplate: 'sidebarlayout',
+        yieldTemplates: {
+            'adminSidebar': {to: 'sidebar'},
+        },
+        "onBeforeAction" : function(){
+            if(!Meteor.loggingIn() && !Roles.userIsInRole(Meteor.user(), [ "admin" ])){
+                this.redirect("/");
+                this.pause();
+            }
+        }
+    });
+    this.route("courses");
 });
 
+//Route logged in users to their dashboard
 Router.onBeforeAction(function(){
-    if(Meteor.user()){
-       this.redirect("home");
+    if(!Meteor.loggingIn() && Meteor.user()){
+       this.redirect("dashboard");
+       this.pause();
     }
 }, {only: ["login", "register"]});
 
-//Restrict public access to certain areas
+//Route not logged in users to the login page (and give access to registration)
 Router.onBeforeAction(function(){
     if(!Meteor.loggingIn() && !Meteor.user()){
         this.redirect("login");
+        this.pause();
     }
-}, {except: ["login", "register", "home"]});
-
-//Prevent unprivileged users to enter the admin area
-Router.onBeforeAction(function(){
-    if(!Roles.userIsInRole(Meteor.user(), [ "admin" ])){
-        this.redirect("/");
-    }
-}, {only: ["admin"]});
+}, {except: ["login", "register"]});

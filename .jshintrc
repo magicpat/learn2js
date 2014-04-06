@@ -123,6 +123,7 @@
       "_": false,               // Underscore.js
       "$": false,               // jQuery
       "Router": false,          // iron-router
-      "Roles" : false           // roles
+      "Roles" : false,          // roles
+      "Mesosphere" : false      // Mesosphere validation
     }
 }
