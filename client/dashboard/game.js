@@ -29,21 +29,22 @@ L2JSGame = function(canvas, preload){
     var GRID_HEIGHT = 15;
 
     //Offset to push the content down in the canvas
-    var OFFSET = { x: 0, y : 50 };
+    var OFFSET = { x: TILE_WIDTH, y : TILE_HEIGHT * 2};
 
-    //Ensure canvas size
-    var SCREEN_WIDTH = TILE_SIZE * 2 * GRID_WIDTH + OFFSET.x;
-    var SCREEN_HEIGHT = TILE_SIZE * GRID_HEIGHT + OFFSET.y;
-
+    //Adapt the canvas dimensions
+    var SCREEN_WIDTH = (TILE_WIDTH * GRID_WIDTH) + (TILE_HEIGHT * GRID_HEIGHT);
+    var SCREEN_HEIGHT = (TILE_HEIGHT * GRID_HEIGHT / 2) + (TILE_HEIGHT * GRID_WIDTH / 2) + OFFSET.y;
+   
     //Coordinate system
-    var ORIGIN_COORDS = {
-        x : (SCREEN_WIDTH / 2) + OFFSET.x,
-        y : OFFSET.y
+    var ORIGIN_COORDS = { 
+        x : OFFSET.x, 
+        y : (TILE_HEIGHT_HALF * GRID_HEIGHT) + OFFSET.y - TILE_HEIGHT_HALF 
     };
 
     var MATRIX = {
-        "FREE" : 1,
-        "DEBUG" : 2
+        "DEBUG" : 2,
+        "FREE" : 3,
+        "CUBE" : 4,
     };
 
     //Ensure the canvas has the same size
@@ -58,11 +59,30 @@ L2JSGame = function(canvas, preload){
     var dimension = new obelisk.CubeDimension(TILE_WIDTH, TILE_HEIGHT, TILE_SIZE);
 
     //Buildmode is a hovering cube at the cursor 
+    //buildCube is the geometry being cached for the click event
     var buildmode = false;
+    var buildCube;
     var buildCubePos = { x : 0, y : 0};
+    var buildObjectId;
 
-    //{x, y}
+    //Current mouse screen position
     var cursorPos = { x : 0, y : 0};
+
+    /**
+     * Initializees the game and preloads gameobjects passed by Arraylist
+     * @param {array} dataList - JSON list width objectId and X, Y coordinates 
+     *                         [ { objectId : 1, x : 1, y : 1 },... ] 
+     */ 
+    function init(dataList){
+        //Initialize the data matrix
+        loadMatrix(dataList);
+
+        //Eventhandling
+        canvas.onmousemove = updateCursorPosition;
+        canvas.onclick = fireClick;
+
+        draw();
+    }
 
     function getMousePos(event){
         var rect = canvas.getBoundingClientRect();
@@ -73,38 +93,57 @@ L2JSGame = function(canvas, preload){
     }
 
     function fireClick(event){
-        //var x = Math.floor((event.clientX - rect.left));
-        //var y = Math.floor((event.clientY - rect.top));
         var mousePos = getMousePos(event);
-        console.log(event);
+
         var mapPos = getGridCoordinates(mousePos);
 
-        console.log("Tile: (" +mapPos.x + ", " + mapPos.y + ")");
+        //Place the object, if it's a valid position ON the gameboard
+        if(buildmode && !mapPos.outside){
+            placeObject(buildObjectId, mapPos.x, mapPos.y);                    
+        }
     }
-
+    
     function getGridCoordinates(screenPos){
-        console.log("Original Coords X: " + screenPos.x + " Y: " + screenPos.y);
-        screenPos.x -= ORIGIN_COORDS.x;
-        screenPos.y -= ORIGIN_COORDS.y;
-
-        console.log("Fixed Coords X: " + screenPos.x + " Y: " + screenPos.y);
-        var x = (screenPos.x / TILE_WIDTH_HALF + screenPos.y / TILE_HEIGHT_HALF) / 2;
-        var y = (screenPos.y / TILE_HEIGHT_HALF - screenPos.x / TILE_WIDTH_HALF) / 2;
-
-        if(x >= GRID_WIDTH){
-            x = GRID_WIDTH - 1;
+        if(screenPos.x < 0){
+            screenPos.x = 0;
         }
-        if(y >= GRID_HEIGHT){
-            y = GRID_HEIGHT - 1;
+
+        if(screenPos.y < 0){
+            screenPos.y = 0;
         }
+
+        //This is just an inversion of getScreenCoordinates
+        //Although, Y gets +1 since the Grid is not calculated from the furthest left corner
+        var x = ((screenPos.x - ORIGIN_COORDS.x) / TILE_WIDTH + (screenPos.y - ORIGIN_COORDS.y) / TILE_HEIGHT_HALF) / 2;
+        var y = (((ORIGIN_COORDS.y - screenPos.y) / TILE_HEIGHT_HALF + (screenPos.x - ORIGIN_COORDS.x) / TILE_WIDTH) / 2) + 1;
+        var outside = false;
 
         if(x < 0){
             x = 0;
+            outside = true;
         }
+
         if(y < 0){
             y = 0;
+            outside = true;
         }
-        return {x : x, y : y};
+
+        if(x >= GRID_WIDTH){
+            x = GRID_WIDTH - 1;
+            outside = true;
+        }
+
+        if(y >= GRID_HEIGHT){
+            y = GRID_HEIGHT - 1;
+            outside = true;
+        }
+
+        //outside: if the screenPos was outside of the actual bord bounderies
+        return {
+            x : Math.floor(x), 
+            y : Math.floor(y), 
+            outside: outside 
+        };
     }
 
     function getScreenCoordinates(mapPos){
@@ -116,149 +155,154 @@ L2JSGame = function(canvas, preload){
             mapPos.y = GRID_HEIGHT - 1;
         }
 
-        var x = ((mapPos.x - mapPos.y) * TILE_WIDTH_HALF) + ORIGIN_COORDS.x;
-        var y = ((mapPos.x + mapPos.y) * TILE_HEIGHT_HALF) + ORIGIN_COORDS.y;
+        if(mapPos.x < 0){
+            mapPos.x = 0;
+        }
+
+        if(mapPos.y < 0){
+            mapPos.y = 0;
+        }
+
+        var x = ORIGIN_COORDS.x + ((mapPos.x + mapPos.y) * TILE_WIDTH);
+        var y = ORIGIN_COORDS.y + ((mapPos.x - mapPos.y) * TILE_HEIGHT_HALF) ;
 
         return { x : x, y : y};
     }
 
-
     function updateCursorPosition(event){
         cursorPos = getMousePos(event);
         
-        //getGridCoordinates(cursorPos);
         //If buildmode, move the buildCube with the mouse 
-        /* 
         if(buildmode){
-           var mapPos = getGridCoordinates(cursorPos);
+            var mapPos = getGridCoordinates(cursorPos);
            
-           var fractalX = Math.ceil(((mapPos.x < 1.0) ? mapPos.x : (mapPos.x % Math.floor(mapPos.x))) * 100);
-           var fractalY = Math.ceil(((mapPos.y < 1.0) ? mapPos.y : (mapPos.y % Math.floor(mapPos.y))) * 100);
-         
-           if(fractalX > 50){
-                mapPos.x = Math.ceil(mapPos.x);
-           }
-           else{
-                mapPos.x = Math.floor(mapPos.x);
-           }
-
-           if(fractalY > 50){
-                mapPos.y = Math.ceil(mapPos.y);
-           }
-           else{
-                mapPos.y = Math.floor(mapPos.y);
-           }
-           
-           //todo: snap to the right element, if certain pixel is reached
-           if(buildCubePos.x !== mapPos.x && buildCubePos.y !== mapPos.y){
-               //console.log(mapPos); 
-               buildCubePos = mapPos;
-               //draw();
-           }
-        }*/
+            //Only draw if the location has changed
+            if(buildCubePos.x !== mapPos.x || buildCubePos.y !== mapPos.y){
+                buildCubePos = mapPos;
+                requestAnimationFrame(draw);
+            }
+        }
     }
 
-    L2JSGame.s2m = function(x, y){
-        var gridPos = getGridCoordinates({x : x, y: y});
 
-        gridPos.mark = function(){
-            matrix[this.x][this.y] = MATRIX.DEBUG;
-            draw();
-        };
-
-        return gridPos;
-    };
-
-    L2JSGame.m2s = function(x, y){
-        var pos = getScreenCoordinates({x: x, y: y});
-        pos.mark = function(){
-            matrix[x][y] = MATRIX.DEBUG;
-            draw();
-        };
-        return pos;
-    };
-
-    L2JSGame.ucp = function(x, y){
-        updateCursorPosition({clientX : x, clientY : y});
-    };
-
-    L2JSGame.mark = function(pos){
-        matrix[pos.x][pos.y] = MATRIX.DEBUG;
-        draw();
-    };
-
-    //Initializes the elements used in the game
-    function init(){
-        matrix = createArray(GRID_WIDTH, GRID_HEIGHT);
-        
-        //Eventhandling
-        canvas.onmousemove = updateCursorPosition;
-        canvas.onclick = fireClick;
-
-        //todo: initialize preload stuff into the matrix   
-    }
-
-    function createArray(width, height) {
+    function createArray(width, height, defaultValue) {
         var arr = new Array(width);
         for (var i = 0; i < width; i++) {
             arr[i] = new Array(height);
-            for(var j = 0; j < height; j++){
-                arr[i][j] = MATRIX.FREE;
-            }
+            //for(var j = 0; j < height; j++){
+                //arr[i][j] = defaultValue;
+            //}
         }
 
         return arr;
     }
 
-    function clickObject(x, y){
-        
-    }
+    /**
+     * Creates / Reuses the matrix and sets objects for specific
+     * fields (preloading Cubes etc.)
+     * @param {array} dataList - JSON list width objectId and X, Y coordinates 
+     *                         [ { objectId : 1, x : 1, y : 1 },... ] 
+     */ 
+    function loadMatrix(dataList){
+        if(!matrix){
+            matrix = createArray(GRID_WIDTH, GRID_HEIGHT);
+        }
 
-    function enableBuildMode(objectToPlace){
-       buildmode = true; 
-    }
+        //Fill everything with default tiles
+        for(var i = 0; i < matrix.length; i++){
+            for(var j = 0; j < matrix[i].length; j++){
+                placeObject(MATRIX.FREE, i, j);        
+            }
+        }
 
-    function disableBuildMode(){
-        buildmode = false;
-    }
+        if(dataList){
+            for (var i = 0 ; i < dataList.length; i++) {
+                var data = dataList[i];
 
-    function draw(){
-        var colorBG = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.GRAY);
-        pixelView.clear();
-        //todo
-        for (var i = 0; i < GRID_WIDTH; i++) {
-            for (var j = 0; j < GRID_HEIGHT; j++) {
-                var p3d = new obelisk.Point3D(i * TILE_SIZE, j * TILE_SIZE, 0);
-                var geometry;
-
-                //Render buildCube before matrix elements
-                if((buildCubePos.x === i && buildCubePos.y === j) && buildmode){
-                    console.log("i: " + i + "j: " + j);
-                    
-                    //Only show a green buildCube if the area is free
-                    var colorCode = (matrix[i][j] === MATRIX.FREE ?  obelisk.ColorPattern.GRASS_GREEN : obelisk.ColorPattern.WINE_RED);
-
-                    var color = new obelisk.CubeColor().getByHorizontalColor(colorCode);
-                    geometry = new obelisk.Cube(dimension, color);
-                }
-                else {
-                    switch (matrix[i][j]) {
-                        case MATRIX.DEBUG:
-                            var color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.WINE_RED);
-                            geometry = new obelisk.Brick(dimension, color);
-                            break;
-                        default:
-                            geometry = new obelisk.Brick(dimension, colorBG);
-                    }
-                }
-                
-                //Render the preselected object
-                pixelView.renderObject(geometry, p3d);
+                placeObject(data.objectId, data.x, data.y); 
             }
         }
     }
 
-    init();
-    enableBuildMode();
-    draw();
+    function generateObject(objectId){
+        switch(objectId){
+           case MATRIX.DEBUG: 
+                var color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.WINE_RED);
+                return new obelisk.Brick(dimension, color);
+           case MATRIX.FREE:
+                var color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.GRAY);
+                return new obelisk.Brick(dimension, color);
+           case MATRIX.CUBE:
+                var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.BLUE);
+                return new obelisk.Cube(dimension, color);
+           default:
+                throw new Error("ObjectId '" + objectId + "' does not exist!");
+        }
+    }
+
+    function placeObject(objectId, gridX, gridY){
+        if(!matrix){
+            throw new Error("Matrix not initialized!");
+        }
+        if(gridX < 0 || gridX >= GRID_WIDTH){
+            throw new Error("X coordinate '" + gridX + "' is invalid!");
+        }
+        if(gridY < 0 || gridY >= GRID_HEIGHT){
+            throw new Error("Y coordinate '" + gridY + "' is invalid!");
+        }
+
+        matrix[gridX][gridY] = { id : objectId, geometry : generateObject(objectId)};
+    }
+
+    function enableBuildMode(objectId){
+       buildmode = true;
+       buildObjectId = objectId;
+    }
+
+    function disableBuildMode(){
+        buildmode = false;
+        buildObjectId = null;
+    }
+
+    function draw(){
+        pixelView.clear();
+
+        //Default brick color
+        var defaultColor = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.GRAY);
+
+        for (var i = 0; i < GRID_WIDTH; i++) {
+            //Render backwards, so there is no overlay problem
+            for (var j = GRID_HEIGHT - 1; j >= 0; j--) {
+                var p3d = new obelisk.Point3D(i * TILE_WIDTH, -1 * j * TILE_HEIGHT, 0);
+                var geometry;
+
+                //If buildmode is on, render a preview cube (either red or green, dependend on the field)
+                if(buildmode && (buildCubePos.x === i && buildCubePos.y === j)){
+                    //Only show a green buildCube if the area is free
+                    var colorCode = (matrix[i][j].id === MATRIX.FREE?  0x3300FF00 : 0x33FF0000);
+
+                    var color = new obelisk.CubeColor().getByHorizontalColor(colorCode);
+                    geometry = buildCube = new obelisk.Cube(dimension, color)
+                }
+                else {
+                    geometry = matrix[i][j].geometry;
+                }
+
+                if(geometry){
+                    pixelView.renderObject(geometry, p3d);
+                } 
+            }
+        }
+    }
+
+
+    //Global public instance values
+    self.enableBuildMode = enableBuildMode;
+    self.init = init;
+
+    //Global public constants
+    L2JSGame.MATRIX = MATRIX;
+
+    //todo: DEBUG remove afterwards
+    L2JSGame.self = self;
 };
