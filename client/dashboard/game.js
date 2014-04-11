@@ -44,7 +44,9 @@ L2JSGame = function(canvas, preload){
     var MATRIX = {
         "DEBUG" : 2,
         "FREE" : 3,
-        "CUBE" : 4,
+        "HOUSE0" : "house0",
+        "BAR0" : "bar0",
+        "LIBRARY0" : "library0"
     };
 
     //Ensure the canvas has the same size
@@ -232,7 +234,13 @@ L2JSGame = function(canvas, preload){
            case MATRIX.FREE:
                 var color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.GRAY);
                 return new obelisk.Brick(dimension, color);
-           case MATRIX.CUBE:
+           case MATRIX.HOUSE0:
+                var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.WINE_RED);
+                return new obelisk.Cube(dimension, color);
+           case MATRIX.BAR0:
+                var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.GRASS_GREEN);
+                return new obelisk.Cube(dimension, color);
+           case MATRIX.LIBRARY0:
                 var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.BLUE);
                 return new obelisk.Cube(dimension, color);
            default:
@@ -264,6 +272,10 @@ L2JSGame = function(canvas, preload){
         buildObjectId = null;
     }
 
+    function isInBuildMode(){
+        return buildmode;
+    }
+
     function draw(){
         pixelView.clear();
 
@@ -279,7 +291,7 @@ L2JSGame = function(canvas, preload){
                 //If buildmode is on, render a preview cube (either red or green, dependend on the field)
                 if(buildmode && (buildCubePos.x === i && buildCubePos.y === j)){
                     //Only show a green buildCube if the area is free
-                    var colorCode = (matrix[i][j].id === MATRIX.FREE?  0x3300FF00 : 0x33FF0000);
+                    var colorCode = (matrix[i][j].id === MATRIX.FREE?  0x5500FF00 : 0x55FF0000);
 
                     var color = new obelisk.CubeColor().getByHorizontalColor(colorCode);
                     geometry = buildCube = new obelisk.Cube(dimension, color)
@@ -298,6 +310,8 @@ L2JSGame = function(canvas, preload){
 
     //Global public instance values
     self.enableBuildMode = enableBuildMode;
+    self.disableBuildMode = disableBuildMode;
+    self.isInBuildMode = isInBuildMode;
     self.init = init;
 
     //Global public constants

@@ -1,3 +1,73 @@
 <template name="courses">
-<h1>Courses</h1>
+    <div class="content-header">
+        <h1>
+            Your Courses
+        </h1>
+        {{#unless courses}}
+            <p class="lead">No courses available!</p>
+        {{/unless}}
+    </div> 
+
+    <!-- Keep all page content within the page-content inset div! -->
+    <div class="page-content inset">
+        <table class="table table-striped">
+            {{#each courses}}
+            <tr>
+                <td>{{name}}</td>
+                <td>{{description}}</td>
+            </tr>
+            {{/each}}
+         </table>
+    </div>
+</template>
+
+<template name="coursesNew">
+    <div class="content-header">
+        <h1>
+            New Course 
+        </h1>
+        <p class="lead">
+        To make the course available for public press "Publish"
+        </p>
+        <form id="courseUpdateForm" role="form">
+            <div class="form-group">
+                <button type="button" class="btn btn-primary" title="Save all questions">Save</button>
+                {{#if course.published}}
+                    <button type="button" class="btn btn-warning" title="Make course publicy available">Unpublish</button>
+                {{else}}
+                    <button type="button" class="btn btn-success" title="Make course publicy available">Publish</button>
+                {{/if}}
+                <button type="button" class="btn btn-danger" title="Delete course with all questions">Delete</button>
+            </div>
+        </form>
+    </div> 
+
+    <!-- Keep all page content within the page-content inset div! -->
+    <div class="page-content inset">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="nav nav-tabs">
+                    {{#each currentCourse.questions}}
+                    <li class="{{isActiveQuestion}}"><a href="#">{{order}}</a></li>
+                    {{/each}}
+                    <li><a href="#"><i class="fa fa-plus-circle"></i> Add Question</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                {{> aceEditor}}
+            </div>
+        </div>
+        <div class="row" id="last-row">
+        </div>
+    </div>
+</template>
+
+<template name="coursesSidebar">
+    <h3>Course-Panel</h3>
+    <ul class="nav nav-pills nav-stacked">
+        <li class="{{isRouteActive '/courses'}}"><a href="{{pathFor 'courses'}}" >Overview</a> </li>
+        <li class="{{isRouteActive '/courses/new'}}"><a href="{{pathFor 'courses/new'}}" >Create new course</a> </li>
+    </ul>
 </template>

@@ -5,31 +5,16 @@
     </div>
 </template>
 
-<template name="sidebarlayoutBAK">
-    {{> navigation}}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3" id="sidebar">
-                {{> yield region='sidebar'}}
-            </div>
-            <div class="col-md-9">
-                {{> yield}}
-            </div>
-        </div> 
-    </div>
-</template>
-
 <template name="sidebarlayout">
-<div id="wrapper">
-   <div id="sidebar-wrapper">
-       {{> yield region='sidebar'}} 
-   </div> 
-   <div id="page-content-wrapper">
-        {{> yield}}
-   </div>
-</div>
-{{> navigation}}
-
+    <div id="wrapper">
+       <div id="sidebar-wrapper">
+           {{> yield region='sidebar'}} 
+       </div> 
+       <div id="page-content-wrapper">
+            {{> yield}}
+       </div>
+    </div>
+    {{> navigation}}
 </template>
 
 <template name="navigation">
@@ -43,7 +28,10 @@
                     <li class="active"><a href="{{pathFor 'home'}}">Home</a></li>
                 </ul>
 
+
                 <ul class="nav navbar-nav navbar-right">
+
+                    <!-- Register / Login / Username display-->
                     {{#if currentUser}}
                         <li>{{> userDropdown}}</li>
                     {{else}}
@@ -79,6 +67,10 @@
             <li><a href="#" id="logout-link"><i class="fa fa-power-off fa-fw"></i> Logout</a></li>
         </ul>
     </div>
+</template>
+
+<template name="aceEditor">
+    <div id="editor"></div>
 </template>
 
 <template name="footer">

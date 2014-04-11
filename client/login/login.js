@@ -5,7 +5,8 @@
 function routeUser(user){
         var rolePaths = [
             { roles : ["admin"], route : "admin" },
-            { roles : ["student", "teacher"], route : "dashboard"},
+            { roles : ["teacher"], route : "courses" },
+            { roles : ["student"], route : "dashboard"},
         ];
 
         //Redirect users of specific roles to a specific page

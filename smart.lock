@@ -10,7 +10,9 @@
       "iron-router-progress": {},
       "accounts-ui-bootstrap-3": {},
       "npm": {},
-      "jquery-validation": {}
+      "jquery-validation": {},
+      "collection2": {},
+      "ace-embed": {}
     },
     "packages": {
       "router": {
@@ -58,6 +60,16 @@
         "tag": "v1.0.0",
         "commit": "afce6a53368c4f35f3bd82d92572312db68ecbb7"
       },
+      "collection2": {
+        "git": "https://github.com/aldeed/meteor-collection2.git",
+        "tag": "v0.3.11",
+        "commit": "7e970671305657678e8508d8107d5e6c5e158559"
+      },
+      "ace-embed": {
+        "git": "https://github.com/stuartfenton/meteor-ace-embed.git",
+        "tag": "v0.0.4",
+        "commit": "027b0e1b0d06111b51a713f04a8b8750fdcbd289"
+      },
       "page-js-ie-support": {
         "git": "https://github.com/tmeasday/meteor-page-js-ie-support.git",
         "tag": "v1.3.5",
@@ -72,6 +84,11 @@
         "git": "https://github.com/EventedMind/blaze-layout.git",
         "tag": "v0.2.2",
         "commit": "8bc53798fe5965669ae67c72f91829fcfdceabfd"
+      },
+      "simple-schema": {
+        "git": "https://github.com/aldeed/meteor-simple-schema.git",
+        "tag": "v0.2.46",
+        "commit": "30b5d3e08433fbbfe49f09845559bf3ca0ab9101"
       }
     }
   }

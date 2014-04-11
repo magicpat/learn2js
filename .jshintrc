@@ -124,6 +124,12 @@
       "$": false,               // jQuery
       "Router": false,          // iron-router
       "Roles" : false,          // roles
-      "Mesosphere" : false      // Mesosphere validation
+      "SimpleSchema" : false,   // SimpleSchema (Collection2)
+      
+      // Own globals
+      "Tiles" : false,    //Collection
+      "GObjects" : false,  //Collection
+      "Courses" : false   //Collection
+      
     }
 }

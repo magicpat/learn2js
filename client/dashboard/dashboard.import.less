@@ -1,0 +1,20 @@
+#buildmenu .panel-body{
+    text-align: center;
+}
+
+
+//Display the icons as buttons with gradient
+#buildmenu i.fa {
+    vertical-align: bottom;
+    border-radius: 8px;
+    border: solid thin black;
+    padding: 4px;
+    margin: 6px; 
+    #gradient > .vertical(@brand-primary, #fff);
+}
+
+#buildmenu .bm-active i{
+    color: darken(@brand-success, 20%);
+    #gradient > .vertical(@brand-success, #fff);
+}
+

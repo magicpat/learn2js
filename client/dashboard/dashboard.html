@@ -1,9 +1,56 @@
 <template name="dashboard">
-    <h1>Dashboard</h1>
-    
     <canvas id="game-canvas" width="700" height="700"></canvas>
 </template>
 
 <template name="dashboardSidebar">
-    <h3>Buildmenu</h3>
+    <div class="panel panel-default" id="status">
+        <div class="panel-heading">
+            <h3 class="panel-title">Status</h3>
+        </div>
+        <table class="table">
+            <tr>
+                <td>Experience</td>
+                <td>{{currentUser.exp}}</td>
+            </tr>
+            <tr>
+                <td>Level</td>
+                <td>{{currentUser.level}}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel panel-default" id="resources">
+        <div class="panel-heading">
+            <h3 class="panel-title">Resources</h3>
+        </div>
+        <table class="table">
+            <tr>
+                <td>Credits</td>
+                <td>{{currentUser.resources.credits}}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="panel panel-default" id="buildmenu">
+      <div class="panel-heading">
+        <h3 class="panel-title">Buildmenu</h3>
+      </div>
+      <div class="panel-body">
+          {{> buildmenu}}
+      </div>
+      <div class="panel-footer" id="bm-footer">
+           &nbsp; 
+      </div>
+    </div>
 </template>
+
+<template name="buildmenu">
+  <div>
+      {{#each buildmenuItems}}
+          {{#if questionmark}}
+              <a href="#"> <i class="fa fa-question fa-fw fa-3x"></i></a> 
+          {{else}}
+              <a href="#" class="bm-item" id="bm-{{name}}" data-name="{{name}}" data-description="{{description}}"> <i class="{{gui.menuClass}}"></i></a>
+          {{/if}}
+      {{/each}}
+  </div> 
+</template>
+
