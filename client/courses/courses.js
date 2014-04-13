@@ -8,8 +8,15 @@ Template.coursesNew.helpers({
     }
 });
 
+Template.coursesNew.events({
+    "click #save" : function(evt, tpl){
+        //TODO: fetch data from interface and insert data in db
+    }
+});
 Template.coursesNew.rendered = function(){
     var course= Session.get("course");
+    //Tells if there should be a question-save-dialog before leaving the page
+    var persisted = true;
     if(!course){
         course = {
             userId : Meteor.user(),
@@ -27,7 +34,9 @@ Template.coursesNew.rendered = function(){
                 answers : []
             }]
         };
+        persisted = false;
         Session.set("course");
+        Session.set("persisted", persisted);
     }
 
     console.log("course");
