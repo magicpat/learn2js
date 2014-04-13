@@ -65,7 +65,7 @@ Tiles = new Meteor.Collection("tiles",{
             label : "ID of the owning user",
             index : 1
         },
-        gobjectId : {
+        gobjectid : {
             type : String,
             label : "ID of the game object",
             index : 1
@@ -85,9 +85,9 @@ Tiles = new Meteor.Collection("tiles",{
 
 GObjects = new Meteor.Collection("gobjects", {
     schema : new SimpleSchema({
-        "name" : {
+        "objectid" : {
             type : String,
-            label : "Program identifier name for rendering",
+            label : "ObjectId definition in game which should be rendered",
             index : 1
         },
         "description" : {
@@ -99,7 +99,7 @@ GObjects = new Meteor.Collection("gobjects", {
             label : "Required level of the user",
             min : 0
         },
-        "requirements.credits" : {
+        "requirements.resources.credits" : {
             type : Number,
             label : "Required credits for the game object",
             min : 0

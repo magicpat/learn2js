@@ -1,0 +1,27 @@
+<template name="ranking">
+
+    <table class="table table-striped">
+        <thead>
+            <th>
+                <tr>
+                    <td>Rank</td>
+                    <td>Player</td>
+                    <td>Experience</td>
+                    <td>Level</td>
+                    <td>Credits</td>
+                </tr>
+            </th>
+        </thead>
+        <tbody>
+            {{#each users}}
+                <tr>
+                    <td>{{rank}}</td>
+                    <td>{{username}}</td>
+                    <td>{{exp}}</td>
+                    <td>{{level}}</td>
+                    <td>{{resources.credits}}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</template>

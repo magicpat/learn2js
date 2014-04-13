@@ -5,7 +5,7 @@
 function routeUser(user){
         var rolePaths = [
             { roles : ["admin"], route : "admin" },
-            { roles : ["teacher"], route : "courses" },
+            { roles : ["teacher"], route : "courses/admin" },
             { roles : ["student"], route : "dashboard"},
         ];
 

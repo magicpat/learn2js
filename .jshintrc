@@ -129,7 +129,7 @@
       // Own globals
       "Tiles" : false,    //Collection
       "GObjects" : false,  //Collection
-      "Courses" : false   //Collection
-      
+      "Courses" : false,  //Collection
+      "L2JSUtil" : false //Server-Client Util 
     }
 }

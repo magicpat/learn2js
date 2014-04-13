@@ -8,12 +8,18 @@ Router.configure({
 //Map all the routes
 Router.map(function(){
     this.route("home", {path : "/"});
+    this.route("ranking", {
+        waitOn: function(){
+            this.subscribe("userData").wait();
+        }
+    });
     this.route("login");
     this.route("register");
     this.route("dashboard",{
         waitOn: function(){
             this.subscribe("userData").wait();
             this.subscribe("gameObjects").wait();
+            this.subscribe("tiles", Meteor.user()._id).wait();
         },
         layoutTemplate: 'sidebarlayout',
         yieldTemplates: {
@@ -30,13 +36,19 @@ Router.map(function(){
     this.route("courses", {
         waitOn : function(){
             this.subscribe("courses").wait();
+        }
+    });
+    this.route("courses/admin", {
+        template : "courses",
+        waitOn : function(){
+            this.subscribe("courses").wait();
         },
         layoutTemplate: 'sidebarlayout',
         yieldTemplates: {
             'coursesSidebar': {to: 'sidebar'},
         }
     });
-    this.route("courses/new", {
+    this.route("courses/admin/new", {
         template : "coursesNew",
         layoutTemplate: 'sidebarlayout',
         yieldTemplates: {
@@ -81,4 +93,4 @@ Router.onBeforeAction(requireAdmin, { only : [ "admin" ] });
 Router.onBeforeAction(requireLogin, {except: ["login", "register"]});
 
 //Lock teacher areas
-Router.onBeforeAction(requireTeacher, {only : [ "courses/new", "courses/edit" ]});
+Router.onBeforeAction(requireTeacher, {only : [ "courses/admin", "courses/admin/new" ]});

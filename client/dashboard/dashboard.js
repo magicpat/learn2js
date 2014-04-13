@@ -23,6 +23,7 @@ Template.buildmenu.events({
 });
 
 function initUI(game){
+    var user = Meteor.user();
 
     //Reusable DOM elements
     var $bmFooter = $("#bm-footer");
@@ -30,43 +31,150 @@ function initUI(game){
 
     //Classes
     var activeClass = "bm-active";
+    var insuffClass = "bm-insufficient";
+
+    //Cache all game objects
+    var gobjectsMap = {};
+    _.each(GObjects.find({}).fetch(), function(go){
+       gobjectsMap[go.objectid] = go;
+    });
+
+    function setBMFooterText(text){
+        $bmFooter.html(text);
+    }
 
     function resetBuildmode(){
         $(".bm-item").removeClass(activeClass);
-        game.disableBuildMode();
+        game.disableBuildmode();
+        setBMFooterText("Build cubes!");
     }
 
+    function initTiles(){
+        var tiles = Tiles.find({userid : user._id});
+        game.loadMatrix(tiles.fetch());
+        game.redraw();
+    }
+
+    $(document).keyup(function(e) {
+        if (e.keyCode === 27) {
+            if(game.isInBuildMode()){
+                resetBuildmode();
+            }
+        }
+    });
+
     //Show item description in BM footer on Hover
-    $(".bm-item").on("mouseover", function(e){
+    $(".bm-item").on("mouseover", function(){
         if(game.isInBuildMode()){
             return;
         }
         var $item = $(this);
         var description = $item.data("description");
-        console.log("foo");
-        $bmFooter.text(description);
+
+        var gobject = gobjectsMap[$item.data("objectid")];
+
+        var insufficient = !L2JSUtil.hasResources(user, gobject);
+        if(insufficient){
+            $item.addClass(insuffClass);
+        }
+
+        var reqCredits = gobject.requirements.resources.credits;
+        var resText = "(Credits: " + reqCredits + ((insufficient)? " ! " : "") + ")"; 
+        setBMFooterText(description + "<br>" + resText);
+    });
+
+    $(".bm-item").on("mouseout", function(){
+        $(".bm-item").removeClass(insuffClass);
     });
 
     //Switch to build mode after clicking a BM-Item
-    $(".bm-item").on("click", function(e){
+    $(".bm-item").on("click", function(){
         var $item = $(this);
 
-        if($curSelection && $curSelection[0] === $item[0]){
-            console.log("equal");
-        }
-        
+        var gobjectid = $item.data("objectid");
+        var gobject = gobjectsMap[gobjectid];
+
         //Disable highlighting of last active selection
         if($curSelection){
-            $item.removeClass(activeClass);
+            resetBuildmode();
+        }
+
+        //If not enough resources, don't even go in buildmode
+        if(!L2JSUtil.hasResources(user, gobject)){
+            setBMFooterText("Not enough resources!");
+            return;
+        }
+
+        //TODO: LOAD ALL ELEMENTS THE USER OWNS (replace null)
+        if(!L2JSUtil.hasRequiredObjects(user, gobject, null)){
+            setBMFooterText("You need other buildings first!");
+            return;
         }
 
         $item.addClass(activeClass);
-        var name = $item.data("name");
 
-        game.enableBuildMode(name);
-        $bmFooter.text("Press [ESC] to cancel...");
+        game.enableBuildMode(gobjectid);
+        setBMFooterText("Press [ESC] to cancel...");
+
         $curSelection = $item;
     });
+
+    //Manage clicks on the canvas
+    $("#game-canvas").on("click", function(e){
+        e.preventDefault();
+
+        //If there is no buildmode enabled, stop it
+        if(!game.isInBuildMode()){
+            return;
+        }
+
+        //Get clicked X and Y of map
+        var mapPos = game.getClickedCoordinates(e);
+
+        //If the click was outside of the map, ignore it
+        if(mapPos.outside){
+            return;
+        }
+
+        //Check if the user has enough resources
+        var gobject = gobjectsMap[$curSelection.data("objectid")];
+
+        if(!L2JSUtil.hasResources(user, gobject)){
+            setBMFooterText("Not enough resources!");
+            return;
+        }
+
+        //TODO: LOAD ALL ELEMENTS THE USER OWNS (replace null)
+        if(!L2JSUtil.hasRequiredObjects(user, gobject, null)){
+            setBMFooterText("You need other buildings first!");
+            return;
+        }
+
+        //Otherwise let the build commence
+        var gobjectid = gobject.objectid;
+
+        Meteor.call("addTile", gobjectid, mapPos.x, mapPos.y, function(err, success){
+            if(err){
+                setBMFooterText("Error! Cube could not be created");
+                return;
+            }
+            if(!success){
+                setBMFooterText("Place already occupied!");
+                return;
+            }
+
+            game.placeObject(gobjectid, mapPos.x, mapPos.y);
+        });
+    });
+
+    Tiles.find({userid: user._id }).observe({
+        added: function(tile) {
+            game.placeObject(tile.gobjectid, tile.posX, tile.posY);
+        }
+    });
+
+    initTiles();
+    resetBuildmode();
 }
 
 Template.dashboard.rendered = function(){

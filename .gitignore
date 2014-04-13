@@ -16,3 +16,4 @@ node_modules
 
 .meteor/local
 .meteor/meteorite
+.DS_Store

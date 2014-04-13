@@ -1,0 +1,78 @@
+[
+    {
+        "objectid" : "house0",
+        "description" : "Basic housing for your people",
+        "requirements" : {
+            "level" : 0,
+            "resources" : {
+                "credits" : 100
+            }
+        },
+        "reward" : {
+            "exp" : 20
+        },
+        "gui" : {
+            "inMenu" : true,
+            "menuPos" : 1,
+            "menuClass" : "fa fa-home fa-fw fa-3x lvl0"
+        }
+    },
+
+    {
+        "objectid" : "house1",
+        "description" : "Extended housing for your people",
+        "requirements" : {
+            "level" : 1,
+            "resources" : {
+                "credits" : 100
+            },
+            "dependencies" : [ "house0" ]
+        },
+        "reward" : {
+            "exp" : 1000
+        },
+        "gui" : {
+            "inMenu" : false,
+            "menuClass" : "fa fa-home fa-fw fa-3x lvl1"
+        }
+    },
+
+    {
+        "objectid" : "bar0",
+        "description" : "Simple Bar, just for hanging out",
+        "requirements" : {
+            "level" : 0,
+            "resources" : {
+                "credits" : 200
+            }
+        },
+        "reward" : {
+            "exp" : 50
+        },
+        "gui" : {
+            "inMenu" : true,
+            "menuPos" : 2,
+            "menuClass" : "fa fa-beer fa-fw fa-3x lvl1"
+        }
+    },
+
+    {
+        "objectid" : "library0",
+        "description" : "Small library to lend some books",
+        "requirements" : {
+            "level" : 0,
+            "resources" : {
+                "credits" : 300
+            },
+            "dependencies" : [ "house0", "bar0" ]
+        },
+        "reward" : {
+            "exp" : 100
+        },
+        "gui" : {
+            "inMenu" : true,
+            "menuPos" : 3,
+            "menuClass" : "fa fa-book fa-fw fa-3x lvl1"
+        }
+    }
+]

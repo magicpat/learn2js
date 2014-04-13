@@ -1,0 +1,17 @@
+[
+    {
+        "username" : "admin",
+        "email" : "admin@learn2js.at",
+        "roles" : [ "admin" ]
+    },
+    {
+        "username" : "teacher",
+        "email" : "teacher@learn2js.at",
+        "roles" : [ "teacher" ]
+    },
+    {
+        "username" : "student",
+        "email" : "student@learn2js.at",
+        "roles" : [ "student" ]
+    }
+]

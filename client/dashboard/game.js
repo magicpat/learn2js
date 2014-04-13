@@ -74,14 +74,13 @@ L2JSGame = function(canvas, preload){
      * Initializees the game and preloads gameobjects passed by Arraylist
      * @param {array} dataList - JSON list width objectId and X, Y coordinates 
      *                         [ { objectId : 1, x : 1, y : 1 },... ] 
-     */ 
+     */
     function init(dataList){
         //Initialize the data matrix
         loadMatrix(dataList);
 
         //Eventhandling
         canvas.onmousemove = updateCursorPosition;
-        canvas.onclick = fireClick;
 
         draw();
     }
@@ -94,15 +93,10 @@ L2JSGame = function(canvas, preload){
         };
     }
 
-    function fireClick(event){
+    function getClickedCoordinates(event){
         var mousePos = getMousePos(event);
 
-        var mapPos = getGridCoordinates(mousePos);
-
-        //Place the object, if it's a valid position ON the gameboard
-        if(buildmode && !mapPos.outside){
-            placeObject(buildObjectId, mapPos.x, mapPos.y);                    
-        }
+        return getGridCoordinates(mousePos);
     }
     
     function getGridCoordinates(screenPos){
@@ -142,9 +136,9 @@ L2JSGame = function(canvas, preload){
 
         //outside: if the screenPos was outside of the actual bord bounderies
         return {
-            x : Math.floor(x), 
-            y : Math.floor(y), 
-            outside: outside 
+            x : Math.floor(x),
+            y : Math.floor(y),
+            outside: outside
         };
     }
 
@@ -187,7 +181,7 @@ L2JSGame = function(canvas, preload){
     }
 
 
-    function createArray(width, height, defaultValue) {
+    function createArray(width, height, defaultValue){
         var arr = new Array(width);
         for (var i = 0; i < width; i++) {
             arr[i] = new Array(height);
@@ -203,8 +197,8 @@ L2JSGame = function(canvas, preload){
      * Creates / Reuses the matrix and sets objects for specific
      * fields (preloading Cubes etc.)
      * @param {array} dataList - JSON list width objectId and X, Y coordinates 
-     *                         [ { objectId : 1, x : 1, y : 1 },... ] 
-     */ 
+     *                         [ { gobjectid : 1, posX : 1, posY : 1 },... ] 
+     */
     function loadMatrix(dataList){
         if(!matrix){
             matrix = createArray(GRID_WIDTH, GRID_HEIGHT);
@@ -213,7 +207,7 @@ L2JSGame = function(canvas, preload){
         //Fill everything with default tiles
         for(var i = 0; i < matrix.length; i++){
             for(var j = 0; j < matrix[i].length; j++){
-                placeObject(MATRIX.FREE, i, j);        
+                placeObject(MATRIX.FREE, i, j);
             }
         }
 
@@ -221,27 +215,28 @@ L2JSGame = function(canvas, preload){
             for (var i = 0 ; i < dataList.length; i++) {
                 var data = dataList[i];
 
-                placeObject(data.objectId, data.x, data.y); 
+                placeObject(data.gobjectid, data.posX, data.posY);
             }
         }
     }
 
     function generateObject(objectId){
+        var color;
         switch(objectId){
-           case MATRIX.DEBUG: 
-                var color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.WINE_RED);
+           case MATRIX.DEBUG:
+                color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.WINE_RED);
                 return new obelisk.Brick(dimension, color);
            case MATRIX.FREE:
-                var color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.GRAY);
+                color = new obelisk.SideColor().getByInnerColor(obelisk.ColorPattern.GRAY);
                 return new obelisk.Brick(dimension, color);
            case MATRIX.HOUSE0:
-                var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.WINE_RED);
+                color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.WINE_RED);
                 return new obelisk.Cube(dimension, color);
            case MATRIX.BAR0:
-                var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.GRASS_GREEN);
+                color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.GRASS_GREEN);
                 return new obelisk.Cube(dimension, color);
            case MATRIX.LIBRARY0:
-                var color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.BLUE);
+                color = new obelisk.CubeColor().getByHorizontalColor(obelisk.ColorPattern.BLUE);
                 return new obelisk.Cube(dimension, color);
            default:
                 throw new Error("ObjectId '" + objectId + "' does not exist!");
@@ -267,9 +262,13 @@ L2JSGame = function(canvas, preload){
        buildObjectId = objectId;
     }
 
-    function disableBuildMode(){
+    function disableBuildmode(){
         buildmode = false;
         buildObjectId = null;
+
+        //Redraw so the last buildcube does
+        //not stick to the board
+        requestAnimationFrame(draw);
     }
 
     function isInBuildMode(){
@@ -294,7 +293,7 @@ L2JSGame = function(canvas, preload){
                     var colorCode = (matrix[i][j].id === MATRIX.FREE?  0x5500FF00 : 0x55FF0000);
 
                     var color = new obelisk.CubeColor().getByHorizontalColor(colorCode);
-                    geometry = buildCube = new obelisk.Cube(dimension, color)
+                    geometry = buildCube = new obelisk.Cube(dimension, color);
                 }
                 else {
                     geometry = matrix[i][j].geometry;
@@ -302,7 +301,7 @@ L2JSGame = function(canvas, preload){
 
                 if(geometry){
                     pixelView.renderObject(geometry, p3d);
-                } 
+                }
             }
         }
     }
@@ -310,8 +309,14 @@ L2JSGame = function(canvas, preload){
 
     //Global public instance values
     self.enableBuildMode = enableBuildMode;
-    self.disableBuildMode = disableBuildMode;
+    self.disableBuildmode = disableBuildmode;
     self.isInBuildMode = isInBuildMode;
+    self.placeObject = placeObject;
+    self.getClickedCoordinates = getClickedCoordinates;
+    self.loadMatrix = loadMatrix;
+    self.redraw = function(){
+        requestAnimationFrame(draw);
+    };
     self.init = init;
 
     //Global public constants
