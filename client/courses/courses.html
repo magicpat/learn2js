@@ -11,23 +11,45 @@
     <!-- Keep all page content within the page-content inset div! -->
     <div class="page-content inset">
         <table class="table table-striped">
-            {{#each courses}}
-            <tr>
-                <td>{{name}}</td>
-                <td>{{description}}</td>
-            </tr>
-            {{/each}}
+            <thead>
+                <tr>
+                    <td>Name:</td>
+                    <td>Description:</td>
+                    <td>Actions:</td>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each courses}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{description}}</td>
+                    <td>
+                        {{#if isInRole 'student'}}
+                            <a href="{{pathFor 'doCourse' _id=this._id}}" class="btn btn-primary">Start</a>
+                        {{/if}}
+                        {{#if isInRole 'teacher'}}
+                            <a href="{{pathFor 'courseEdit' _id=this._id}}" class="btn btn-primary">Edit</a>
+                            {{#if published}}
+                                <a href="#" data-courseid="{{_id}}" class="btn btn-danger c-unpublish">Unpublish</a>
+                            {{else}}
+                                <a href="#" data-courseid="{{_id}}" class="btn btn-success c-publish">Publish</a>
+                            {{/if}}
+                        {{/if}}
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
          </table>
     </div>
 </template>
 
-<template name="coursesNew">
+<template name="coursesEdit">
     <div class="content-header">
         <h1>
-            New Course 
+            Edit Course 
         </h1>
         <p class="lead">
-        To make the course available for public press "Publish"
+        Create questions for your course! 
         </p>
     </div> 
 
@@ -43,38 +65,70 @@
                 <textarea id="description" class="form-control" rows="3"></textarea>
             </div>
             <div class="form-group">
-                <label for="questions">Questions:</label>
                 <div class="panel panel-default">
                     <div class="panel-heading"> 
                         <ul class="nav nav-tabs" id="questions">
-                            {{#each currentCourse.questions}}
+                            {{#each course.questions}}
                             <li class="{{isActiveQuestion}}"><a href="#">{{order}}</a></li>
                             {{/each}}
                             <li><a href="#"><i class="fa fa-plus-circle"></i> Add Question</a></li>
                         </ul>
                     </div>
                     <div class="panel-body">
-                        <div >
-                            {{> aceEditor}}
+                        <div class="form-group">
+                            <textarea id="question" class="form-control" rows="2" placeholder="What do you want to ask?"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="hint">Hint:</label>
+                            <textarea id="hint" class="form-control" rows="2" placeholder="Leave a hint"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="difficulty">Difficulty (0 = easy):</label>
+                            <br>
+                            <select id="difficulty">
+                                <option>0</option>
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+                                <option>9</option>
+                                <option>10</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Source Code:</label>
+                            <div class="btn-toolbar" role="toolbar">
+                                <div class="btn-group">
+                                    <a href="#" class="btn btn-default">test.js</a>
+                                    <a href="#" class="btn btn-default"><i class="fa fa-plus-circle"></i></a>
+                                </div>
+                                {{> aceEditor}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="">Answers:</label>
+                            <div class="panel panel-default">
+                                <div class="panel-body" id="answers">
+                                    <div class="form-inline">
+                                        <div class="form-group">
+                                            <input type="checkbox">
+                                            <input type="text" class="form-control" data="" placeholder="Enter Answer">
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <a href="#" id="answeradd" class="btn btn-default"><i class="fa fa-plus-circle"></i> Add answer</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="form-group">
-                <label for="">Answers:</label>
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        test
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
                 <button type="button" id="save" class="btn btn-primary" title="Save all questions">Save</button>
-                {{#if course.published}}
-                <button type="button" id="unpublish" class="btn btn-warning" title="Make course publicy available">Unpublish</button>
-                {{else}}
-                <button type="button" id="publish" class="btn btn-success" title="Make course publicy available">Publish</button>
-                {{/if}}
                 <button type="button" id="delete" class="btn btn-danger" title="Delete course with all questions">Delete</button>
             </div>
         </form>

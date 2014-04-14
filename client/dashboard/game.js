@@ -9,7 +9,7 @@
  *  var canvas = document.getObjectById("game-canvas");
  *  var game = L2JSGame(canvas);
  */
-L2JSGame = function(canvas, preload){
+L2JSGame = function(canvas){
     "use strict";
     var self = this;
 

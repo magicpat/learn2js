@@ -13,5 +13,20 @@
         "username" : "student",
         "email" : "student@learn2js.at",
         "roles" : [ "student" ]
+    },
+    {
+        "username" : "alex",
+        "email" : "alex@learn2js.at",
+        "roles" : [ "student" ]
+    },
+    {
+        "username" : "mranonym",
+        "email" : "mranonym@learn2js.at",
+        "roles" : [ "student" ]
+    },
+    {
+        "username" : "js4win",
+        "email" : "js4win@learn2js.at",
+        "roles" : [ "student" ]
     }
 ]

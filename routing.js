@@ -35,13 +35,26 @@ Router.map(function(){
     });
     this.route("courses", {
         waitOn : function(){
-            this.subscribe("courses").wait();
+            this.subscribe("publishedCourses").wait();
+        }
+    });
+    this.route("doCourse", {
+        path : "courses/do/:_id",
+        template : "quiz",
+        waitOn : function(){
+            this.subscribe("publishedCourses").wait();
+        },
+        data : function(){
+            var course = Courses.findOne({_id : this.params._id});
+
+            Session.set("course", course);
+            return course;
         }
     });
     this.route("courses/admin", {
         template : "courses",
         waitOn : function(){
-            this.subscribe("courses").wait();
+            this.subscribe("createdCourses").wait();
         },
         layoutTemplate: 'sidebarlayout',
         yieldTemplates: {
@@ -49,10 +62,27 @@ Router.map(function(){
         }
     });
     this.route("courses/admin/new", {
-        template : "coursesNew",
+        template : "coursesEdit",
+        waitOn : function(){
+            this.subscribe("createdCourses").wait();
+        },
         layoutTemplate: 'sidebarlayout',
         yieldTemplates: {
             'coursesSidebar': {to: 'sidebar'},
+        }
+    });
+    this.route("courseEdit", {
+        path : "courses/admin/edit/:_id",
+        template : "coursesEdit",
+        waitOn : function(){
+            this.subscribe("createdCourses").wait();
+        },
+        layoutTemplate: 'sidebarlayout',
+        yieldTemplates: {
+            'coursesSidebar': {to: 'sidebar'},
+        },
+        data : function(){
+           return Courses.findOne({_id : this.params._id});
         }
     });
     //this.route("courses/play");

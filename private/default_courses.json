@@ -1,0 +1,118 @@
+[
+    {
+        "userid" : "",
+        "name" : "JavaScript Arithmetics",
+        "published" : true,
+        "description" : "Learn how to use arithmetical Operations in JavaScript!",
+        "questions" : [
+            {
+                "num" : 1,
+                "text" : "What will be the result of variable 'i'?",
+                "codefiles" : [
+                    { 
+                        "acemode" : "javascript",
+                        "filename" : "arithmetics.js",
+                        "content" : "var i = 1 + 1"
+                    },
+                    {
+                        "acemode" : "html",
+                        "filename" : "index.html",
+                        "content" : "<body></body>"
+                    },
+                    {
+                        "acemode" : "css",
+                        "filename" : "style.css",
+                        "content" : "#test{ color: blue;}"
+                    }
+                ],
+                "hint" : "It's the same result as in real life!",
+                "difficulty" : 0,
+                "answers" : ["2", "3", "0", "1"],
+                "correct" : ["1"]
+            },
+            {
+                "num" : 2,
+                "text" : "Which of those statements are correct?",
+                "codefiles" : [
+                    { 
+                        "acemode" : "javascript",
+                        "filename" : "arithmetics.js",
+                        "content" : "var i = 1 + 1;\nz = i - 1;"
+                    },
+                    {
+                        "acemode" : "html",
+                        "filename" : "index.html",
+                        "content" : "<body></body>"
+                    },
+                    {
+                        "acemode" : "css",
+                        "filename" : "style.css",
+                        "content" : "#test{ color: blue;}"
+                    }
+                ],
+                "hint" : "You don't need an hint for that, don't you?",
+                "difficulty" : 1,
+                "answers" : ["None of them", "Line 1", "Line 2"],
+                "correct" : ["Line 1", "Line 2"]
+            }
+        ]
+    },
+    {
+        "userid" : "",
+        "name" : "JavaScript Advanced Arithmetics",
+        "published" : false,
+        "description" : "Proof your true arithmetic skills in JavaScript!",
+        "questions" : [
+            {
+                "num" : 1,
+                "text" : "What will be the result of variable 'i'?",
+                "codefiles" : [
+                    { 
+                        "acemode" : "javascript",
+                        "filename" : "arithmetics.js",
+                        "content" : "var i = (1 + 1) * 1000 / 100"
+                    },
+                    {
+                        "acemode" : "html",
+                        "filename" : "index.html",
+                        "content" : "<body></body>"
+                    },
+                    {
+                        "acemode" : "css",
+                        "filename" : "style.css",
+                        "content" : "#test{ color: blue;}"
+                    }
+                ],
+                "hint" : "It's the same result as in real life!",
+                "difficulty" : 0,
+                "answers" : ["2", "Not valid", "20", "1"],
+                "correct" : ["20"]
+            },
+            {
+                "num" : 2,
+                "text" : "What does this statement do?",
+                "codefiles" : [
+                    { 
+                        "acemode" : "javascript",
+                        "filename" : "arithmetics.js",
+                        "content" : "var x = 1 % 1"
+                    },
+                    {
+                        "acemode" : "html",
+                        "filename" : "index.html",
+                        "content" : "<body></body>"
+                    },
+                    {
+                        "acemode" : "css",
+                        "filename" : "style.css",
+                        "content" : "#test{ color: blue;}"
+                    }
+                ],
+                "hint" : "You don't need an hint for that, don't you?",
+                "difficulty" : 1,
+                "answers" : ["None of them", "x will be 0", "It's a modulo!"],
+                "correct" : ["x will be 0", "It's a modulo!"]
+            }
+        ]
+    }
+]

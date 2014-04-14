@@ -19,24 +19,25 @@ Courses = new Meteor.Collection("courses", {
             type : String,
             label : "Short description of the course"
         },
-        "questions.$.order" : {
+        "questions.$.num" : {
             type : Number,
-            label : "Question order in course"
+            label : "Question number in course"
         },
-        "questions.$.htmlCode" : {
+        "questions.$.text" : {
             type : String,
-            label : "HTML Example Code",
-            optional : true
+            label : "The question text being asked"
         },
-        "questions.$.jsCode" : {
+        "questions.$.codefiles.$.acemode" : {
             type : String,
-            label : "Javascript Example Code",
-            optional : true
+            label : "Acemode language (just the name, i.e. 'javascript')"
         },
-        "questions.$.cssCode" : {
+        "questions.$.codefiles.$.filename" : {
             type : String,
-            label : "CSS Example Code",
-            optional : true
+            label : "Userdefined filename"
+        },
+        "questions.$.codefiles.$.content" : {
+            type : String,
+            label : "Ace editor friendly file content"
         },
         "questions.$.hint" : {
             type : String,
@@ -48,12 +49,12 @@ Courses = new Meteor.Collection("courses", {
             label : "Difficulty Grade of the question (for points)",
             min : 0
         },
-        "questions.$.aMethod" : {
-            type : String,
-            label : "ID for the answer method"
-        },
         "questions.$.answers" : {
+            type : [String]
+        },
+        "questions.$.correct" : {
             type : [String],
+            label : "The actual answer text, since it's easier to compare"
         }
     })
 });

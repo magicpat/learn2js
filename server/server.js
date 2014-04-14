@@ -30,6 +30,18 @@ if (Meteor.isServer) {
         });
     };
 
+    var createDefaultCourses = function(){
+        console.log('Creating default courses...');
+
+        var courses = JSON.parse(Assets.getText("default_courses.json"));
+
+        var teacherid = Meteor.users.findOne({username : "teacher"});
+        _.each(courses, function(course){
+            course.userid = teacherid._id;
+            Courses.insert(course);
+        });
+    };
+
     var createDefaultGameObjects = function(){
         console.log("Creating Default Game Objects....");
         //Get the JSON data from the /private dir
@@ -53,6 +65,10 @@ if (Meteor.isServer) {
             createDefaultGameObjects();
         }
 
+        if(!Courses.find().fetch().length){
+            createDefaultCourses();
+        }
+
         //Prevent non-authorized user creation
         Accounts.validateNewUser(function(){
             /*
@@ -68,39 +84,52 @@ if (Meteor.isServer) {
             return true;
         });
 
+        // ALLOW RULES
+
+        //Allow creators edit their own courses
+        Courses.allow({
+            insert : function(userId, doc){
+                return doc.userid === userId && Roles.userIsInRole(userId, [ 'teacher']);
+            },
+            update : function(userId, doc){
+                return userId === doc.userid;
+            }
+        });
+    });
+    
+
+    //PUBLISH ALL THE THINGS
+    Meteor.publish("userData", function(){
+        return Meteor.users.find({ roles : ["student"] },
+                                 {
+                                     fields : {
+                                         "username" : 1,
+                                         "resources" : 1,
+                                         "exp" : 1,
+                                         "level" : 1
+                                     }
+                                 });
+    });
+
+    Meteor.publish("createdCourses", function(){
+        return Courses.find({ userid : this.userId});
+    });
+
+    Meteor.publish("publishedCourses", function(){
+        return Courses.find({ published : true}, { fields : { "correctAnswers" : 0 } });
+    });
+
+    //Give access to all game objects, since all data is needed (and not too much) 
+    Meteor.publish("gameObjects", function(){
+        return GObjects.find({});
+    });
+
+    Meteor.publish("tiles", function(userid){
+        return Tiles.find({userid : userid});
     });
 }
 
-//PUBLISH ALL THE THINGS
 
-Meteor.publish("userData", function(){
-    return Meteor.users.find({ _id: this.userId, roles : ["student"] },
-                             {
-                                 fields : {
-                                     "username" : 1,
-                                     "resources" : 1,
-                                     "exp" : 1,
-                                     "level" : 1
-                                 }
-                             });
-});
 
-Meteor.publish("courses", function(){
-    var user = Meteor.users.findOne({_id:this.userId});
-    if(user){
-        return Courses.find({userid : this.userId});
-    }
-    this.stop();
-    return;
-});
-
-//Give access to all game objects, since all data is needed (and not too much) 
-Meteor.publish("gameObjects", function(){
-    return GObjects.find({});
-});
-
-Meteor.publish("tiles", function(userid){
-    return Tiles.find({userid : userid});
-});
 
 }());
